@@ -1,0 +1,116 @@
+---
+name: Build and Push image
+run-name: "Build and Push ${{ inputs.scenario }} image"
+
+on:
+  workflow_dispatch:
+    inputs:
+      scenario:
+        type: choice
+        default: security-playground
+        required: true
+        options:
+          - security-playground
+          - hello-app
+          - postgres-sakila
+      docker_extra_args:
+        description: 'Additional arguments for Docker build separated by comma'
+        required: false
+        type: string
+      push_image_to_ECR:
+        description: 'Wheter to push the image to ECR (default dry run)'
+        required: true
+        type: boolean
+      custom_tag:
+        description: 'Set a custom tag, leave blank to use the tag from the repo'
+        required: false
+        type: string
+
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: read  # This is required for actions/checkout
+
+concurrency:
+  group: '${{ github.workflow }}-${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
+  cancel-in-progress: true
+
+jobs:
+  build_push_image:
+    runs-on: [ubuntu-latest]
+    steps:  
+    - uses: actions/checkout@v4
+      with:
+        ref: ${{ github.sha }} # required for better experience using pre-releases
+        fetch-depth: 0 # Required due to the way Git works, without it this action won't be able to find any or the correct tags
+
+    - name: Get tags
+      run: git fetch --tags origin
+
+    - name: Tagging successfull version
+      id: tagging
+      uses: anothrNick/github-tag-action@1.67.0
+      env:
+        DRY_RUN: true
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        WITH_V: true
+        DEFAULT_BUMP: "patch"
+        TAG_CONTEXT: 'repo'
+        PRERELEASE_SUFFIX: "beta"
+        PRERELEASE: ${{ (github.ref_name == 'staging') && 'true' || 'false' }}
+        CUSTOM_TAG: ${{ inputs.custom_tag }}
+        
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v3
+      
+    - name: Set Docker context
+      run: |
+        docker context create builders
+        docker context use builders
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+      with:
+        buildkitd-flags: --debug
+        endpoint: builders
+    
+    - name: Docker meta ECR
+      id: meta_id_ecr
+      uses: docker/metadata-action@v5
+      with:
+        # list of Docker images to use as base name for tags
+        images: |
+          public.ecr.aws/j4k4p5y8/${{ inputs.scenario }}
+        # Docker tags based on the following events/attributes
+        tags: |
+          type=raw,value=${{ steps.tagging.outputs.tag}},enable=true
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4 # More information on this action can be found below in the 'AWS Credentials' section
+      with:
+        role-to-assume: ${{ secrets.ECR_ROLE_ARN }}
+        aws-region: us-east-1
+    
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+      with:
+        mask-password: 'true'
+
+    - name: 'Parse docker build args to multiline'
+      id: parse-build-args
+      run: |
+        DOCKER_BUILD_ARGS=$(echo "${{ inputs.docker_extra_args }}" | sed 's/,/\n/g' | awk '{$1=$1};1' | awk '{print "\"" $0 "\""}')
+        echo "DOCKER_BUILD_ARGS_ENV_VAR<<EOF" >> $GITHUB_ENV
+        # here we can place the command that will generate multi-line text
+        echo "$DOCKER_BUILD_ARGS" >> $GITHUB_ENV
+        echo "EOF" >> $GITHUB_ENV
+    
+    - name: Build and push to ECR
+      uses: docker/build-push-action@v6
+      with:
+        build-args: |
+          ${{ env.DOCKER_BUILD_ARGS_ENV_VAR }}
+        context: 'docker-build-${{inputs.scenario}}'
+        push: ${{ inputs.push_image_to_ECR == 'true' }}
+        tags: ${{ steps.meta_id_ecr.outputs.tags }}
+        labels: ${{ steps.meta_id_ecr.outputs.labels }}
