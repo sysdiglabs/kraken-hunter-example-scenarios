@@ -110,6 +110,7 @@ jobs:
       with:
         build-args: |
           ${{ env.DOCKER_BUILD_ARGS_ENV_VAR }}
+        platforms: linux/amd64
         context: 'docker-build-${{inputs.scenario}}'
         push: ${{ inputs.push_image_to_ECR == 'true' }}
         tags: ${{ steps.meta_id_ecr.outputs.tags }}

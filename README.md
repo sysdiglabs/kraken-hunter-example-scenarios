@@ -101,10 +101,12 @@ You will create two custom policies (click the Add Policy button in the upper ri
     * Ensure Actions -> Prevent is **on**
 
 ## Deploy the Kubernetes Manifests
-Ensure your kubectl is working for the intended cluster and you are in the example-scenarios folder then run the following command `kubectl apply -k k8s-manifests`
+
+The K8s manifests are already installed through helm.
+You can review them by runing `helm ls -A`
 
 ## (Optional if you want to do the AWS Cloud Detection and Response steps) Set up the IRSA Role
-Edit the [create-irsa](./create-irsa.sh) script to include the cluster name and region and then run that script to create the AWS IAM Role `irsa` and a matching service-account named `irsa` that we'll assign to the security-playground giving it over-provisioned access to S3 in the workshop.
+Edit the [set-up-irsa](./set-up-irsa.sh) script to include the cluster name (`$EKS_CLUSTER_NAME`) and region and then run that script to create a matching service-account named `irsa` that we'll assign to the security-playground giving it over-provisioned access to S3 in the workshop. The IAM role `irsa-$EKS_CLUSTER_NAME` should be already created in your account. You can run `aws iam get-role --role-name "irsa-$EKS_CLUSTER_NAME"` to retrieve it.
 
 NOTE: You'll need to have enabled OIDC on the cluster you are testing against by following the instructions at https://docs.aws.amazon.com/eks/latest/userguide/enable-iam-roles-for-service-accounts.html
 

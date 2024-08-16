@@ -4,6 +4,7 @@ metadata:
   name: security-playground-restricted
   namespace: security-playground-restricted
   labels:
+    app.kubernetes.io/instance: security-playground-restricted
     app.kubernetes.io/name: security-playground-restricted
 spec:
   type: NodePort
@@ -14,4 +15,5 @@ spec:
       name: http
       nodePort: 30001
   selector:
+    app.kubernetes.io/instance: security-playground-restricted
     app.kubernetes.io/name: security-playground-restricted

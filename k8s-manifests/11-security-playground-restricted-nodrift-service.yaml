@@ -4,6 +4,7 @@ metadata:
   name: security-playground-restricted-nodrift
   namespace: security-playground-restricted-nodrift
   labels:
+    app.kubernetes.io/instance: security-playground-restricted-nodrift
     app.kubernetes.io/name: security-playground-restricted-nodrift
 spec:
   type: NodePort
@@ -14,4 +15,5 @@ spec:
       name: http
       nodePort: 30002
   selector:
+    app.kubernetes.io/instance: security-playground-restricted-nodrift
     app.kubernetes.io/name: security-playground-restricted-nodrift

@@ -3,5 +3,6 @@ kind: Namespace
 metadata:
   name: hello
   labels:
+    app.kubernetes.io/instance: hello
     app.kubernetes.io/name: hello
     app: hello

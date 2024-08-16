@@ -4,15 +4,18 @@ metadata:
   name: security-playground-restricted-nodrift
   namespace: security-playground-restricted-nodrift
   labels:
+    app.kubernetes.io/instance: security-playground-restricted-nodrift
     app.kubernetes.io/name: security-playground-restricted-nodrift
 spec:
   replicas: 1
   selector:
     matchLabels:
+      app.kubernetes.io/instance: security-playground-restricted-nodrift
       app.kubernetes.io/name: security-playground-restricted-nodrift
   template:
     metadata:
       labels:
+        app.kubernetes.io/instance: security-playground-restricted-nodrift
         app.kubernetes.io/name: security-playground-restricted-nodrift
     spec:
       securityContext:

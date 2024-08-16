@@ -2,16 +2,19 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
+    app.kubernetes.io/instance: hello-server
     app.kubernetes.io/name: hello-server
   name: hello-server
   namespace: hello
 spec:
   selector:
     matchLabels:
+      app.kubernetes.io/instance: hello-server
       app.kubernetes.io/name: hello-server
   template:
     metadata:
       labels:
+        app.kubernetes.io/instance: hello-server
         app.kubernetes.io/name: hello-server
     spec:
       containers:

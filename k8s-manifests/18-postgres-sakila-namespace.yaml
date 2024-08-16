@@ -3,5 +3,6 @@ kind: Namespace
 metadata:
   name: postgres-sakila
   labels:
+    app.kubernetes.io/instance: postgres-sakila
     app.kubernetes.io/name: postgres-sakila
     app: postgres-sakila
