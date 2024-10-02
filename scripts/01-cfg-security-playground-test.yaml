@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: security-playground
-  namespace: security-playground
+  namespace: security-playground-restricted
   labels:
     app.kubernetes.io/instance: security-playground
     app.kubernetes.io/name: security-playground
@@ -18,7 +18,6 @@ spec:
         app.kubernetes.io/instance: security-playground
         app.kubernetes.io/name: security-playground
     spec:
-      serviceAccountName: irsa
       hostPID: true
       containers:
         - name: security-playground
@@ -37,10 +36,3 @@ spec:
               port: http
           securityContext:
             privileged: true
-          resources:
-            requests:
-              memory: "256Mi"
-              cpu: "250m"
-            limits:
-              memory: "512Mi"
-              cpu: "500m"

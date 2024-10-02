@@ -2,7 +2,7 @@
 # Script to demonstrate how to interact with security-playground
 
 NODE_IP=$(kubectl get nodes -o wide | awk 'FNR == 2 {print $6}')
-NODE_PORT=30003
+NODE_PORT=30002
 HELLO_NAMESPACE=hello
 
 # Try to reach hello-server for our NetworkPolicy example later

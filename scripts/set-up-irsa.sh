@@ -5,7 +5,7 @@ NAMESPACE="security-playground"
 AWS_ACCOUNT_ID="$(aws sts get-caller-identity --query Account --output text)"
 IAM_ROLE_NAME="irsa-$EKS_CLUSTER_NAME"
 echo "Creating IAM role $IAM_ROLE_NAME"
-cat > ./scripts/serviceaccount.yaml << EOF
+cat > serviceaccount.yaml << EOF
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -16,6 +16,7 @@ metadata:
   name: $SERVICE_ACCOUNT_NAME
   namespace: $NAMESPACE
 EOF
-kubectl apply -f ./scripts/serviceaccount.yaml
+kubectl apply -f serviceaccount.yaml
 kubectl delete -n $NAMESPACE deploy security-playground
-kubectl apply -f ./scripts/security-playground-irsa.yaml
+kubectl apply -f 02-cfg-security-playground-irsa.yaml
+
