@@ -4,14 +4,17 @@ metadata:
   name: hello-client-blocked
   namespace: hello
   labels:
+    app.kubernetes.io/instance: hello-client-blocked
     app.kubernetes.io/name: hello-client-blocked
 spec:
   selector:
     matchLabels:
+      app.kubernetes.io/instance: hello-client-blocked
       app.kubernetes.io/name: hello-client-blocked
   template:
     metadata:
       labels:
+        app.kubernetes.io/instance: hello-client-blocked
         app.kubernetes.io/name: hello-client-blocked
     spec:
       containers:

@@ -4,15 +4,18 @@ metadata:
   name: security-playground
   namespace: security-playground
   labels:
+    app.kubernetes.io/instance: security-playground
     app.kubernetes.io/name: security-playground
 spec:
   replicas: 1
   selector:
     matchLabels:
+      app.kubernetes.io/instance: security-playground
       app.kubernetes.io/name: security-playground
   template:
     metadata:
       labels:
+        app.kubernetes.io/instance: security-playground
         app.kubernetes.io/name: security-playground
     spec:
       hostPID: true

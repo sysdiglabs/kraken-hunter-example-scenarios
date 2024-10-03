@@ -13,6 +13,11 @@ on:
           - security-playground
           - hello-app
           - postgres-sakila
+      docker_file:
+        description: 'Dockerfile to use for the build'
+        required: true
+        type: string
+        default: 'Dockerfile'
       docker_extra_args:
         description: 'Additional arguments for Docker build separated by comma'
         required: false
@@ -20,6 +25,7 @@ on:
       push_image_to_ECR:
         description: 'Wheter to push the image to ECR (default dry run)'
         required: true
+        default: false
         type: boolean
       custom_tag:
         description: 'Set a custom tag, leave blank to use the tag from the repo'
@@ -73,17 +79,6 @@ jobs:
         buildkitd-flags: --debug
         endpoint: builders
     
-    - name: Docker meta ECR
-      id: meta_id_ecr
-      uses: docker/metadata-action@v5
-      with:
-        # list of Docker images to use as base name for tags
-        images: |
-          public.ecr.aws/j4k4p5y8/${{ inputs.scenario }}
-        # Docker tags based on the following events/attributes
-        tags: |
-          type=raw,value=${{ steps.tagging.outputs.tag}},enable=true
-
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4 # More information on this action can be found below in the 'AWS Credentials' section
       with:
@@ -94,7 +89,18 @@ jobs:
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v2
       with:
-        mask-password: 'true'
+        registry-type: public
+
+    - name: Docker meta ECR
+      id: meta_id_ecr
+      uses: docker/metadata-action@v5
+      with:
+        # list of Docker images to use as base name for tags
+        images: |
+          ${{ steps.login-ecr.outputs.registry }}/j4k4p5y8/${{ inputs.scenario }}
+        # Docker tags based on the following events/attributes
+        tags: |
+          type=raw,value=${{ steps.tagging.outputs.tag}},enable=true
 
     - name: 'Parse docker build args to multiline'
       id: parse-build-args
@@ -110,7 +116,9 @@ jobs:
       with:
         build-args: |
           ${{ env.DOCKER_BUILD_ARGS_ENV_VAR }}
+        platforms: linux/amd64
         context: 'docker-build-${{inputs.scenario}}'
-        push: ${{ inputs.push_image_to_ECR == 'true' }}
+        file: 'docker-build-${{inputs.scenario}}/${{inputs.docker_file}}'
+        push: ${{ inputs.push_image_to_ECR }}
         tags: ${{ steps.meta_id_ecr.outputs.tags }}
         labels: ${{ steps.meta_id_ecr.outputs.labels }}

@@ -2,6 +2,7 @@ kind: Service
 apiVersion: v1
 metadata:
   labels:
+    app.kubernetes.io/instance: hello-server
     app.kubernetes.io/name: hello-server
   name: hello-server
   namespace: hello
@@ -11,6 +12,7 @@ spec:
     protocol: TCP
     targetPort: 8080
   selector:
+    app.kubernetes.io/instance: hello-server
     app.kubernetes.io/name: hello-server
   sessionAffinity: None
   type: ClusterIP

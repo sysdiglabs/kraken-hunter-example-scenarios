@@ -11,6 +11,7 @@ spec:
               app: hello
           podSelector:
             matchLabels:
+              app.kubernetes.io/instance: hello-client
               app.kubernetes.io/name: hello-client
       ports:
         - port: 8080
@@ -23,6 +24,7 @@ spec:
           protocol: UDP
   podSelector:
     matchLabels:
+      app.kubernetes.io/instance: hello-server
       app.kubernetes.io/name: hello-server
   policyTypes:
     - Ingress

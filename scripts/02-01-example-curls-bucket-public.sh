@@ -17,8 +17,19 @@ curl --connect-timeout 5 -s -X POST $NODE_IP:$NODE_PORT/exec -d "command=cat cus
 echo "3. Removing the Public Access Block on our bucket $S3_BUCKET_NAME with the overprovisioned IRSA access"
 echo "--------------------------------------------------------------------------------"
 curl --connect-timeout 5 -s -X POST $NODE_IP:$NODE_PORT/exec -d "command=aws s3api delete-public-access-block --bucket $S3_BUCKET_NAME"
-echo "4. Finally setting a bucket policy on the bucket to make it, and all its contents, public!"
+echo "4. Finally setting a bucket policy on the bucket to make it, and all its contents, public"
 echo "--------------------------------------------------------------------------------"
 POLICY="{\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":\"*\",\"Action\":\"s3:GetObject\",\"Resource\":\"arn:aws:s3:::$S3_BUCKET_NAME/*\"}]}"
 POLICY_COMMAND="command=aws s3api put-bucket-policy --bucket $S3_BUCKET_NAME --policy '"$POLICY"'"
 curl --connect-timeout 5 -s -X POST $NODE_IP:$NODE_PORT/exec -d "$POLICY_COMMAND"
+echo "5. Put Bucket ACL for AllUsers"
+echo "--------------------------------------------------------------------------------"
+ACL_COMMAND="aws s3api get-bucket-acl --bucket $S3_BUCKET_NAME | jq -c '.Grants |= . + [{
+  \"Grantee\": {
+    \"DisplayName\": \"opsadmin+se-demo-staging\",
+    \"Type\": \"Group\",
+    \"URI\": \"http://acs.amazonaws.com/groups/global/AllUsers\"
+  },
+  \"Permission\": \"READ_ACP\"
+}]' | jq > /tmp/acl.json"
+curl --connect-timeout 5 -s -X POST $NODE_IP:$NODE_PORT/exec -d "command=aws s3api put-bucket-acl --bucket $S3_BUCKET_NAME --grant-read-acp uri=http://acs.amazonaws.com/groups/global/AllUsers"

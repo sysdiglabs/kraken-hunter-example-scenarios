@@ -12,6 +12,7 @@ spec:
           protocol: UDP
   podSelector:
     matchLabels:
+      app.kubernetes.io/instance: security-playground
       app.kubernetes.io/name: security-playground
   policyTypes:
     - Egress
