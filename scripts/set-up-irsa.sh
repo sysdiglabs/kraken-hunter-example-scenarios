@@ -19,4 +19,3 @@ EOF
 kubectl apply -f serviceaccount.yaml
 kubectl delete -n $NAMESPACE deploy security-playground
 kubectl apply -f 02-cfg-security-playground-irsa.yaml
-
